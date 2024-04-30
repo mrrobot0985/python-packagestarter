@@ -55,7 +55,7 @@ install-deps:
 # Run tests using Poetry
 test:
 	@echo "\n\033[1mRunning tests using Poetry...\033[0m"
-	@$(POETRY_BIN) run pytest
+	@$(POETRY_BIN) run pytest -v
 	@echo "\n\033[32mTests completed.\033[0m"
 
 # Lint code using Flake8
