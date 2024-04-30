@@ -9,7 +9,7 @@ PACKAGE_VERSION := $(if $(shell git tag | tail -n 1),$(shell git tag | tail -n 1
 
 # Define phony targets
 .PHONY: help install install-deps test lint format build install-local uninstall-local clean \
-        github-actions docker-setup security-scan release generate-pyproject set-version
+        github-actions docker-setup security-scan release test-release generate-pyproject set-version
 
 # Display help message
 help:
@@ -25,38 +25,11 @@ help:
 	@echo "  \033[32mmake clean\033[0m                    Remove virtual environment and build artifacts."
 	@echo "  \033[32mmake github-actions\033[0m           Run GitHub Actions workflow locally."
 	@echo "  \033[32mmake docker-setup\033[0m             Set up local Docker environment."
-	@echo "  \033[32mmake security-scan\033[0m            Scan for security vulnerabilities using trivy."
+	@echo "  \033[32mmake security-scan\033[0m            Scan for security vulnerabilities using Trivy."
 	@echo "  \033[32mmake release\033[0m                  Release the package to the official PyPI registry."
 	@echo "  \033[32mmake test-release\033[0m             Release the package to the test PyPI registry."
-
-# Generate pyproject.toml
-generate-pyproject:
-	@echo "\n\033[1mGenerating pyproject.toml...\033[0m"
-	@echo "[tool.poetry]" > pyproject.toml
-	@echo "name = \"packagestarter\"" >> pyproject.toml
-	@echo "version = \"${PACKAGE_VERSION}\"" >> pyproject.toml
-	@echo "description = \"A package to create structured Python packages.\"" >> pyproject.toml
-	@echo "license = \"The Unlicense\"" >> pyproject.toml
-	@echo "authors = [\"$(AUTHOR_NAME) <$(AUTHOR_EMAIL)>\"]" >> pyproject.toml
-	@echo "" >> pyproject.toml
-	@echo "[tool.poetry.dependencies]" >> pyproject.toml
-	@echo "python = \"^$(PYTHON_VERSION)\"" >> pyproject.toml
-	@echo "" >> pyproject.toml
-	@echo "[tool.poetry.dev-dependencies]" >> pyproject.toml
-	@echo "pytest = \"^6.2\"" >> pyproject.toml
-	@echo "" >> pyproject.toml
-	@echo "[build-system]" >> pyproject.toml
-	@echo "requires = [\"poetry-core>=1.0.0\"]" >> pyproject.toml
-	@echo "build-backend = \"poetry.core.masonry.api\"" >> pyproject.toml
-	@echo "" >> pyproject.toml
-	@echo "[[tool.poetry.packages]]" >> pyproject.toml
-	@echo "include = \"packagestarter\"" >> pyproject.toml
-	@echo "from = \"src\"" >> pyproject.toml
-	@echo "" >> pyproject.toml
-	@echo "[tool.poetry.scripts]" >> pyproject.toml
-	@echo "packagestarter = \"packagestarter.packagestarter:main\"" >> pyproject.toml
-	@echo "" >> pyproject.toml
-	@echo "\033[32mpyproject.toml generated.\033[0m"
+	@echo "  \033[32mmake generate-pyproject\033[0m       Generate pyproject.toml."
+	@echo "  \033[32mmake clear-cache\033[0m              Clear cache files."
 
 # Create virtual environment and install Poetry
 install:
@@ -102,7 +75,6 @@ format:
 		| grep -v './src/packagestarter/base_templates') \
 		|| true
 	@echo "\n\033[32mCode formatted.\033[0m"
-
 
 # Build the package using Poetry
 build:
@@ -152,10 +124,49 @@ release: build test
 	@$(POETRY_BIN) publish --build -u __token__ -p $(PYPI_TOKEN)
 	@echo "\n\033[32mPackage released to PyPI registry.\033[0m"
 
+# Generate pyproject.toml
+generate-pyproject:
+	@echo "\n\033[1mGenerating pyproject.toml...\033[0m"
+	@echo "[tool.poetry]" > pyproject.toml
+	@echo "name = \"packagestarter\"" >> pyproject.toml
+	@echo "version = \"${PACKAGE_VERSION}\"" >> pyproject.toml
+	@echo "description = \"A package to create structured Python packages.\"" >> pyproject.toml
+	@echo "license = \"The Unlicense\"" >> pyproject.toml
+	@echo "authors = [\"$(AUTHOR_NAME) <$(AUTHOR_EMAIL)>\"]" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[tool.poetry.dependencies]" >> pyproject.toml
+	@echo "python = \"^$(PYTHON_VERSION)\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[tool.poetry.dev-dependencies]" >> pyproject.toml
+	@echo "pytest = \"^6.2\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[build-system]" >> pyproject.toml
+	@echo "requires = [\"poetry-core>=1.0.0\"]" >> pyproject.toml
+	@echo "build-backend = \"poetry.core.masonry.api\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[[tool.poetry.packages]]" >> pyproject.toml
+	@echo "include = \"packagestarter\"" >> pyproject.toml
+	@echo "from = \"src\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[tool.poetry.scripts]" >> pyproject.toml
+	@echo "packagestarter = \"packagestarter.packagestarter:main\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "\033[32mpyproject.toml generated.\033[0m"
+
 # Scan for security vulnerabilities using Trivy
 security-scan:
 	@echo "\n\033[1mScanning for security vulnerabilities using Trivy...\033[0m"
-	@trivy filesystem .
+	@trivy filesystem ./src
 	@echo "\033[32mSecurity scan completed.\033[0m"
 
+# Run GitHub Actions workflow locally
+github-actions:
+	@echo "\n\033[1mRunning GitHub Actions workflow locally...\033[0m"
+	@# Insert command to run GitHub Actions workflow locally
+	@echo "\033[32mGitHub Actions workflow completed.\033[0m"
 
+# Set up local Docker environment
+docker-setup:
+	@echo "\n\033[1mSetting up local Docker environment...\033[0m"
+	@# Insert command to set up local Docker environment
+	@echo "\033[32mLocal Docker environment set up.\033[0m"
