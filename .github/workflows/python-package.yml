@@ -48,7 +48,7 @@ jobs:
     name: Test Release Package
     needs: test
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/develop'
+    if: startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -75,7 +75,7 @@ jobs:
     name: Release Package
     needs: test
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/develop'
     steps:
       - name: Check out code
         uses: actions/checkout@v4
