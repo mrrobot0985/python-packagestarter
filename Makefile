@@ -36,7 +36,7 @@ install:
 	@echo "\n\033[1mCreating virtual environment and installing Poetry...\033[0m"
 	@python3 -m venv $(VENV_DIR) && \
 	$(VENV_DIR)/bin/python -m pip install --upgrade pip && \
-	$(VENV_DIR)/bin/python -m pip install jinja2 poetry flake8 black
+	$(VENV_DIR)/bin/python -m pip install jinja2 poetry flake8 black twine
 	@echo "\n\033[32mVirtual environment created and Poetry installed.\033[0m"
 	@echo "\033[1mTo activate the virtual environment, run:\033[0m\n\033[33msource $(VENV_DIR)/bin/activate\033[0m"
 
@@ -77,7 +77,8 @@ format:
 	@echo "\n\033[32mCode formatted.\033[0m"
 
 # Build the package using Poetry
-build:
+build: generate-pyproject
+	rm dist/*
 	@echo "\n\033[1mBuilding the package using Poetry...\033[0m"
 	@$(POETRY_BIN) build
 	@echo "\n\033[32mPackage built successfully.\033[0m"
@@ -115,13 +116,13 @@ devrun: install install-deps lint format build
 # Test release to test PyPI registry
 test-release: build test
 	@echo "\n\033[1mReleasing to Test PyPI registry...\033[0m"
-	@$(POETRY_BIN) publish --build -u __token__ -p $(PYPI_TEST_TOKEN)
+	@twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u __token__ -p $(PYPI_TEST_TOKEN)
 	@echo "\n\033[32mPackage released to Test PyPI registry.\033[0m"
 
 # Official release to PyPI registry
 release: build test
 	@echo "\n\033[1mReleasing to PyPI registry...\033[0m"
-	@$(POETRY_BIN) publish --build -u __token__ -p $(PYPI_TOKEN)
+	@twine upload dist/*
 	@echo "\n\033[32mPackage released to PyPI registry.\033[0m"
 
 # Generate pyproject.toml
@@ -139,6 +140,7 @@ generate-pyproject:
 	@echo "" >> pyproject.toml
 	@echo "[tool.poetry.dev-dependencies]" >> pyproject.toml
 	@echo "pytest = \"^6.2\"" >> pyproject.toml
+	@echo "jinja2 = \"^3.1\"" >> pyproject.toml
 	@echo "" >> pyproject.toml
 	@echo "[build-system]" >> pyproject.toml
 	@echo "requires = [\"poetry-core>=1.0.0\"]" >> pyproject.toml
