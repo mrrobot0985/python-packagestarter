@@ -48,7 +48,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          make install-deps
+          make install
 
       - name: Run tests
         run: |
