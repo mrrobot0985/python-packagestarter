@@ -1,4 +1,4 @@
-name: CI for Workflow Configurations
+name: CI for Featyre Branches
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       - name: Lint code
         run: |
           make lint
-          
+
       - name: Set User Config
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
