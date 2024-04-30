@@ -1,11 +1,14 @@
-PYTHON_VERSION := 3.10  # Default Python version
+PYTHON_VERSION := 3.10
 PACKAGE_NAME := packagestarter
+PACKAGE_VERSION := $$(git tag --sort=-version:refname | head -n1 | tr -d 'v' 2>/dev/null || echo "0")
 VENV_DIR := .venv
 POETRY_BIN := $(VENV_DIR)/bin/poetry
+AUTHOR_NAME := $(shell git config user.name)
+AUTHOR_EMAIL := $(shell git config user.email)
 
 # Define phony targets
 .PHONY: help install install-deps test lint format build install-local uninstall-local clean \
-        github-actions docker-setup security-scan release
+        github-actions docker-setup security-scan release generate-pyproject set-version
 
 # Display help message
 help:
@@ -19,10 +22,36 @@ help:
 	@echo "  \033[32mmake install-local\033[0m            Install the package locally using Poetry."
 	@echo "  \033[32mmake uninstall-local\033[0m          Uninstall the package locally using Poetry."
 	@echo "  \033[32mmake clean\033[0m                    Remove virtual environment and build artifacts."
-	@echo "  \033[32mmake github-actions\033[0m           Run GitHub Actions workflow locally."
-	@echo "  \033[32mmake docker-setup\033[0m             Set up local Docker environment."
-	@echo "  \033[32mmake security-scan\033[0m            Scan for security vulnerabilities using trivy."
-	@echo "  \033[32mmake release\033[0m                  Release the package (increment version, tag, and publish)."
+	@echo "  \033[32mmake generate-pyproject\033[0m       Generate pyproject.toml."
+
+# Generate pyproject.toml
+generate-pyproject:
+	@echo "\n\033[1mGenerating pyproject.toml...\033[0m"
+	@echo "[tool.poetry]" > pyproject.toml
+	@echo "name = \"packagestarter\"" >> pyproject.toml
+	@echo "version = \"${PACKAGE_VERSION}\"" >> pyproject.toml
+	@echo "description = \"A package to create structured Python packages.\"" >> pyproject.toml
+	@echo "license = \"The Unlicense\"" >> pyproject.toml
+	@echo "authors = [\"$(AUTHOR_NAME) <$(AUTHOR_EMAIL)>\"]" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[tool.poetry.dependencies]" >> pyproject.toml
+	@echo "python = \"^$(PYTHON_VERSION)\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[tool.poetry.dev-dependencies]" >> pyproject.toml
+	@echo "pytest = \"^6.2\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[build-system]" >> pyproject.toml
+	@echo "requires = [\"poetry-core>=1.0.0\"]" >> pyproject.toml
+	@echo "build-backend = \"poetry.core.masonry.api\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[[tool.poetry.packages]]" >> pyproject.toml
+	@echo "include = \"packagestarter\"" >> pyproject.toml
+	@echo "from = \"src\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "[tool.poetry.scripts]" >> pyproject.toml
+	@echo "packagestarter = \"packagestarter.packagestarter:main\"" >> pyproject.toml
+	@echo "" >> pyproject.toml
+	@echo "\033[32mpyproject.toml generated.\033[0m"
 
 # Create virtual environment and install Poetry
 install:
@@ -95,31 +124,6 @@ clear-cache:
 	@find . -type d -name '__pycache__' -exec rm -rf {} +
 	@find . -type f -name '*.pyc' -exec rm -f {} +
 	@echo "\n\033[32mCache files cleared.\033[0m"
-
-# Run GitHub Actions workflow locally in a Docker container
-github-actions:
-	@echo "\n\033[1mRunning GitHub Actions workflow locally...\033[0m"
-	@docker run --rm -v $(PWD):/github/workspace -w /github/workspace python:3.10 /bin/bash -c "pip install -r requirements.txt && make install && make test && make lint && make build && make security-scan"
-	@echo "\n\033[32mGitHub Actions workflow ran locally.\033[0m"
-
-
-# Set up local Docker environment
-docker-setup:
-	@echo "\n\033[1mSetting up local Docker environment...\033[0m"
-	@# Add commands to set up local Docker environment
-	@echo "\n\033[32mLocal Docker environment set up.\033[0m"
-
-# Scan for security vulnerabilities using trivy
-security-scan:
-	@echo "\n\033[1mScanning for security vulnerabilities using trivy...\033[0m"
-	@# Add commands to run security scan using trivy
-	@echo "\n\033[32mSecurity scan completed.\033[0m"
-
-# Release the package
-release:
-	@echo "\n\033[1mReleasing the package...\033[0m"
-	@# Add commands to handle versioning, tagging, and publishing the package
-	@echo "\n\033[32mPackage released.\033[0m"
 
 # Run development tasks
 devrun: install install-deps lint format build
