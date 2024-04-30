@@ -78,7 +78,7 @@ format:
 
 # Build the package using Poetry
 build: generate-pyproject
-	rm dist/*
+	rm -f dist/*
 	@echo "\n\033[1mBuilding the package using Poetry...\033[0m"
 	@$(POETRY_BIN) build
 	@echo "\n\033[32mPackage built successfully.\033[0m"
