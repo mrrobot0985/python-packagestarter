@@ -1,4 +1,4 @@
-name: CI for Bugfix Branches
+name: CI for Featyre Branches
 
 on:
   push:
@@ -18,26 +18,41 @@ jobs:
           echo "Event Name: ${{ github.event_name }}"
           echo "Commit Hash: ${{ github.sha }}"
 
-  bugfix_build:
+  bugfix_build-and-test:
     runs-on: ubuntu-latest
     needs: bugfix_workflow
     steps:
       - uses: actions/checkout@v4
-      - name: Dummy Build Process
-        run: echo "Simulating build process for bugfix branch."
+      
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          make install 
 
-  bugfix_test:
-    runs-on: ubuntu-latest
-    needs: bugfix_build
-    steps:
-      - uses: actions/checkout@v4
-      - name: Dummy Testing Process
-        run: echo "Simulating testing process for bugfix branch."
+      - name: Run tests
+        run: |
+          make test
 
-  bugfix_code_quality_check:
-    runs-on: ubuntu-latest
-    needs: bugfix_test
-    steps:
-      - uses: actions/checkout@v4
+      - name: Lint code
+        run: |
+          make lint
+
+      - name: Set User Config
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+
+      - name: Build package
+        run: |
+          make build
+
+      - name: Perform security scan
+        run: |
+          make security-scan
+
       - name: Dummy Code Quality Check
         run: echo "Simulating code quality check for bugfix branch."
