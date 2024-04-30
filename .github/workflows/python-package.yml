@@ -48,7 +48,7 @@ jobs:
     name: Release Package
     needs: test
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/develop' && github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/main'
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -97,4 +97,3 @@ jobs:
         run: |
           poetry build
           poetry run twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u __token__ -p $PYPI_TEST_TOKEN
-
