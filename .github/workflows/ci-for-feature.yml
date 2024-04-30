@@ -1,4 +1,4 @@
-name: CI for Featyre Branches
+name: CI for Feature Branches
 
 on:
   push:
@@ -56,4 +56,4 @@ jobs:
 
       - name: Code Quality Check
         run: |
-          make quality-check
+          make quality-scan
