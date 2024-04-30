@@ -1,8 +1,18 @@
 import os
 import argparse
+import subprocess
 from .structure_creation import create_directory_structure
 from .base_templates import get_file_contents
 from .git_initializer import initialize_git
+
+
+def is_git_installed():
+    """Check if git is installed on the system."""
+    try:
+        subprocess.run(["git", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except FileNotFoundError:
+        return False
 
 
 def main():
@@ -28,13 +38,12 @@ def main():
     # Create the directory structure and files
     create_directory_structure(base_path, file_contents)
 
-    # Initialize git
-    initialize_git(base_path, args.package_name)
-
-    # Final message
-    print(
-        f"Package {args.package_name} created successfully with Git repository at {base_path}"
-    )
+    # Initialize git if available
+    if is_git_installed():
+        initialize_git(base_path, args.package_name)
+        print(f"Package {args.package_name} created successfully with Git repository at {base_path}")
+    else:
+        print(f"Package {args.package_name} created successfully at {base_path}.")
 
 
 if __name__ == "__main__":

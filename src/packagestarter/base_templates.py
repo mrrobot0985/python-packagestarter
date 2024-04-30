@@ -12,31 +12,30 @@ def get_file_contents(package_name):
     - dict: Keys are relative file paths, and values are the content of the files.
     """
     contents = {}
-
     # Initialize Jinja environment with an absolute path to the templates directory
     template_loader = FileSystemLoader(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'))
     env = Environment(loader=template_loader)
 
-    # Load Jinja templates
-    template_files = [
-        '__init__.py.jinja',
-        'test_main.py.jinja',
-        'pyproject.toml.jinja',
-        'requirements.txt.jinja',
-        'README.md.jinja',
-        'LICENSE.jinja',
-        '.gitignore.jinja',
-        'index.md.jinja',
-        'BUILD.md.jinja',
-        'conftest.py.jinja',
-        'Makefile.jinja'
-    ]
+    # Map template files to their output paths
+    template_files = {
+        'src/package_name/__init__.py.jinja': f'src/{package_name}/__init__.py',
+        'tests/__init__.py.jinja': 'tests/__init__.py',
+        'tests/test_main.py.jinja': 'tests/test_main.py',
+        'tests/conftest.py.jinja': 'tests/conftest.py',
+        'root/pyproject.toml.jinja': 'pyproject.toml',
+        'root/requirements.txt.jinja': 'requirements.txt',
+        'root/README.md.jinja': 'README.md',
+        'root/LICENSE.jinja': 'LICENSE',
+        'root/.gitignore.jinja': '.gitignore',
+        'docs/index.md.jinja': 'docs/index.md',
+        'docs/BUILD.md.jinja': 'docs/BUILD.md',
+        'root/Makefile.jinja': 'Makefile'
+    }
 
     # Render templates
-    for template_file in template_files:
-        template = env.get_template(template_file)
+    for template_path, file_path in template_files.items():
+        template = env.get_template(template_path)
         rendered_content = template.render(package_name=package_name)
-        file_path = template_file.replace('.jinja', '')
         contents[file_path] = rendered_content
 
     return contents

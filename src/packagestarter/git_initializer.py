@@ -25,6 +25,11 @@ def initialize_git(base_path, package_name):
     run_command("git init", base_path)
     time.sleep(1)  # Pause for 1 second
 
+    # Set default Git user identity if not configured
+    if not is_git_configured(base_path):
+        run_command(f'git config user.email "you@example.com"', base_path)
+        run_command(f'git config user.name "Your Name"', base_path)
+
     # Initial commit with common files like README, LICENSE, pyproject.toml, .gitignore, requirements.txt, and Makefile
     run_command(
         "git add README.md LICENSE pyproject.toml .gitignore requirements.txt Makefile",
@@ -59,31 +64,13 @@ def initialize_git(base_path, package_name):
 
     # Create a feature branch from 'develop'
     feature_branch_name = "feature/initial-setup"
-    run_command(f"git checkout -b {feature_branch_name}", base_path)
+    run_command(f"git checkout -b {feature_branch_name} develop", base_path)
     time.sleep(1)  # Pause for 1 second
 
     # Add package-specific files and commit in the feature branch
-    run_command("git add src/* tests/* docs/*", base_path)
+    run_command("git add .", base_path)
 
-    # Check if there are untracked files to commit in the feature branch
-    untracked_files_output = (
-        subprocess.check_output("git status --porcelain", shell=True, cwd=base_path)
-        .decode()
-        .strip()
-    )
-    files_to_commit = [
-        "BUILD.md",
-        "__init__.py",
-        "conftest.py",
-        "index.md",
-        "test_main.py",
-    ]
-    files_to_add = [file for file in files_to_commit if file in untracked_files_output]
-
-    if files_to_add:
-        run_command(f"git add {' '.join(files_to_add)}", base_path)
-
-    # Check if there are changes to commit after adding untracked files
+    # Check if there are changes to commit after adding files
     status_output = (
         subprocess.check_output("git status --porcelain", shell=True, cwd=base_path)
         .decode()
@@ -122,6 +109,20 @@ def branch_exists(branch_name, base_path):
             f"git show-ref --verify --quiet refs/heads/{branch_name}",
             shell=True,
             cwd=base_path,
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+def is_git_configured(base_path):
+    """Check if Git user identity is configured."""
+    try:
+        subprocess.check_output(
+            "git config --get user.email", shell=True, cwd=base_path
+        )
+        subprocess.check_output(
+            "git config --get user.name", shell=True, cwd=base_path
         )
         return True
     except subprocess.CalledProcessError:
