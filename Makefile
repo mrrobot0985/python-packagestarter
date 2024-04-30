@@ -36,7 +36,7 @@ install:
 	@echo "\n\033[1mCreating virtual environment and installing Poetry...\033[0m"
 	@python3 -m venv $(VENV_DIR) && \
 	$(VENV_DIR)/bin/python -m pip install --upgrade pip && \
-	$(VENV_DIR)/bin/python -m pip install jinja2 poetry flake8 black twine
+	$(VENV_DIR)/bin/python -m pip install jinja2 poetry pytest flake8 black twine
 	@echo "\n\033[32mVirtual environment created and Poetry installed.\033[0m"
 	@echo "\033[1mTo activate the virtual environment, run:\033[0m\n\033[33msource $(VENV_DIR)/bin/activate\033[0m"
 
