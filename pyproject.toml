@@ -21,4 +21,3 @@ from = "src"
 
 [tool.poetry.scripts]
 packagestarter = "packagestarter.packagestarter:main"
-
