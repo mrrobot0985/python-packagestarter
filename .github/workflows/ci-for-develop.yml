@@ -46,6 +46,26 @@ jobs:
           echo "PR Title: ${{ github.event.pull_request.title }}"
           echo "PR Body: ${{ github.event.pull_request.body }}"
 
+      - name: Bump Version
+        run: |
+          BRANCH_PREFIX="${{ github.head_ref }}"
+          # Fetch the latest tag across all branches
+          LATEST_TAG=$(git tag | sort -V | tail -n1)
+          echo "Latest tag: $LATEST_TAG"
+          # Assuming the tag is in the format vMAJOR.MINOR.PATCH
+          MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | cut -dv -f2)
+          MINOR=$(echo $LATEST_TAG | cut -d. -f2)
+          PATCH=$(echo $LATEST_TAG | cut -d. -f3)
+          
+          if [[ "$BRANCH_PREFIX" == feature/* ]]; then
+            # Bump minor
+            NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
+          elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
+            # Bump patch
+            NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
+          fi
+          echo "(Potential) New version: $NEW_VERSION"
+
       - name: Install dependencies
         run: |
           make install
