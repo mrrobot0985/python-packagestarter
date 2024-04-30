@@ -29,7 +29,7 @@ install:
 	@echo "\n\033[1mCreating virtual environment and installing Poetry...\033[0m"
 	@python3 -m venv $(VENV_DIR) && \
 	$(VENV_DIR)/bin/python -m pip install --upgrade pip && \
-	$(VENV_DIR)/bin/python -m pip install poetry flake8 black
+	$(VENV_DIR)/bin/python -m pip install jinja2 poetry flake8 black
 	@echo "\n\033[32mVirtual environment created and Poetry installed.\033[0m"
 	@echo "\033[1mTo activate the virtual environment, run:\033[0m\n\033[33msource $(VENV_DIR)/bin/activate\033[0m"
 
@@ -89,6 +89,13 @@ clean:
 	@rm -rf dist build *.egg-info
 	@echo "\n\033[32mVirtual environment and build artifacts removed.\033[0m"
 
+# Clear cache files
+clear-cache:
+	@echo "\n\033[1mClearing cache files...\033[0m"
+	@find . -type d -name '__pycache__' -exec rm -rf {} +
+	@find . -type f -name '*.pyc' -exec rm -f {} +
+	@echo "\n\033[32mCache files cleared.\033[0m"
+
 # Run GitHub Actions workflow locally in a Docker container
 github-actions:
 	@echo "\n\033[1mRunning GitHub Actions workflow locally...\033[0m"
@@ -115,5 +122,5 @@ release:
 	@echo "\n\033[32mPackage released.\033[0m"
 
 # Run development tasks
-devrun: install install-deps test lint format build
+devrun: install install-deps lint format build
 	@echo "\n\033[32mDevelopment tasks completed.\033[0m"
