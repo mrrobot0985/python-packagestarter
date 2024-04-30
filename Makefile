@@ -31,15 +31,15 @@ help:
 
 # Create virtual environment and install Poetry
 install:
+	@echo "\n\033[1mInstalling Trivy...\033[0m"
+	@wget -q https://github.com/aquasecurity/trivy/releases/download/v0.50.4/trivy_0.50.4_Linux-64bit.deb && \
+	sudo dpkg -i trivy_0.50.4_Linux-64bit.deb && \
+	rm trivy_0.50.4_Linux-64bit.deb
+	@echo "\n\033[32mTrivy installed.\033[0m"
 	@echo "\n\033[1mCreating virtual environment and installing Poetry...\033[0m"
 	@python3 -m venv $(VENV_DIR) && \
 	$(VENV_DIR)/bin/python -m pip install --upgrade pip && \
 	$(VENV_DIR)/bin/python -m pip install jinja2 poetry pytest flake8 black twine mypy Bandit
-	@echo "\n\033[1mInstalling Trivy...\033[0m"
-	@wget https://github.com/aquasecurity/trivy/releases/download/v0.50.4/trivy_0.50.4_Linux-64bit.deb && \
-	sudo dpkg -i trivy_0.50.4_Linux-64bit.deb && \
-	rm trivy_0.50.4_Linux-64bit.deb
-	@echo "\n\033[32mTrivy installed.\033[0m"
 	@echo "\n\033[32mVirtual environment created and pip packages installed.\033[0m"
 	@echo "\033[1mTo activate the virtual environment, run:\033[0m\n\033[33msource $(VENV_DIR)/bin/activate\033[0m"
 
