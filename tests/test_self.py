@@ -58,16 +58,19 @@ def test_templates_directory_exists():
     assert os.path.exists("src/packagestarter/templates")
 
 def test_templates_files_exist():
-    assert os.path.exists("src/packagestarter/templates/BUILD.md.jinja")
-    assert os.path.exists("src/packagestarter/templates/LICENSE.jinja")
-    assert os.path.exists("src/packagestarter/templates/Makefile.jinja")
-    assert os.path.exists("src/packagestarter/templates/README.md.jinja")
-    assert os.path.exists("src/packagestarter/templates/__init__.py.jinja")
-    assert os.path.exists("src/packagestarter/templates/conftest.py.jinja")
-    assert os.path.exists("src/packagestarter/templates/index.md.jinja")
-    assert os.path.exists("src/packagestarter/templates/pyproject.toml.jinja")
-    assert os.path.exists("src/packagestarter/templates/requirements.txt.jinja")
-    assert os.path.exists("src/packagestarter/templates/test_main.py.jinja")
+    base_path = "src/packagestarter/templates"
+    assert os.path.exists(os.path.join(base_path, "src/package_name/__init__.py.jinja"))
+    assert os.path.exists(os.path.join(base_path, "tests/test_main.py.jinja"))
+    assert os.path.exists(os.path.join(base_path, "tests/__init__.py.jinja"))
+    assert os.path.exists(os.path.join(base_path, "tests/conftest.py.jinja"))
+    assert os.path.exists(os.path.join(base_path, "root/pyproject.toml.jinja"))
+    assert os.path.exists(os.path.join(base_path, "root/requirements.txt.jinja"))
+    assert os.path.exists(os.path.join(base_path, "root/README.md.jinja"))
+    assert os.path.exists(os.path.join(base_path, "root/LICENSE.jinja"))
+    assert os.path.exists(os.path.join(base_path, "root/.gitignore.jinja"))
+    assert os.path.exists(os.path.join(base_path, "docs/index.md.jinja"))
+    assert os.path.exists(os.path.join(base_path, "docs/BUILD.md.jinja"))
+    assert os.path.exists(os.path.join(base_path, "root/Makefile.jinja"))
 
 def test_self_py_exists():
     assert os.path.exists("tests/test_self.py")

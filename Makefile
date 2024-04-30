@@ -122,7 +122,7 @@ test-release: build test
 # Official release to PyPI registry
 release: build test
 	@echo "\n\033[1mReleasing to PyPI registry...\033[0m"
-	@twine upload dist/*
+	@twine upload dist/* -u __token__ -p $(PYPI_TOKEN)
 	@echo "\n\033[32mPackage released to PyPI registry.\033[0m"
 
 # Generate pyproject.toml
