@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "packagestarter"
-version = "0.1.0"
+version = "0.0.11"
 description = "A package to create structured Python packages."
 license = "The Unlicense"
 authors = ["mrrobot0985 <164061086+mrrobot0985@users.noreply.github.com>"]
