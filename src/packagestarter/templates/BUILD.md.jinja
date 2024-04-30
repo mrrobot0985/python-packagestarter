@@ -1,0 +1,31 @@
+# Building and Testing {{ package_name }}
+
+## Building the Package
+
+To build this package, ensure that you have `poetry` installed and run:
+
+```bash
+poetry build
+```
+
+This will package your library in both source and wheel format, ensuring that it can be distributed and installed in other environments.
+
+## Testing the Package
+
+To test your package, execute the following command. This assumes `pytest` is configured as your test runner. If you are using a different test runner, please adjust the command accordingly.
+
+```bash
+poetry run pytest
+```
+
+## Managing Production Dependencies with `requirements.txt`
+
+Although your primary dependency management is handled via `pyproject.toml`, you might need a `requirements.txt` for specific deployment environments or continuous integration systems that require it.
+
+To generate a `requirements.txt` that includes only your production dependencies, use the following `poetry` command:
+
+```bash
+poetry export -f requirements.txt --output requirements.txt --without-hashes
+```
+
+Ensure this step is included in your deployment scripts or documentation to keep `requirements.txt` synchronized with your `pyproject.toml` configurations.
