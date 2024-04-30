@@ -1,0 +1,34 @@
+version: 2
+updates:
+  # Enable updates for Python packages in the Poetry project
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  # Enable updates for Python packages in the Poetry project
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "dependency"
+      include: "scope"
+
+  # Enable updates for GitHub Actions used in workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "github-actions"
+      include: "scope"
+
+  # Enable updates for Python packages managed by Poetry
+  - package-ecosystem: "poetry"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "dependency"
+      include: "scope"

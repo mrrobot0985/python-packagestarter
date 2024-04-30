@@ -1,6 +1,13 @@
 # PackageStarter
 
-Welcome to PackageStarter! This package is designed to automate the creation of Python packages, providing a convenient way to set up directory structures, initialize Git repositories, and manage project files.
+<div style="display: flex; align-items: center;">
+    <div style="flex-shrink: 0; margin-right: 20px; text-align: center;">
+        <img src="https://avatars.githubusercontent.com/u/164061086?v=4" alt="description of image" width="75" height="75">
+    </div>
+    <div>
+        "Welcome to PackageStarter! This package is designed to automate the creation of Python packages, providing a convenient way to set up directory structures, initialize Git repositories, and manage project files."
+    </div>
+</div>
 
 ## Features
 
