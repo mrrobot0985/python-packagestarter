@@ -1,10 +1,11 @@
 PYTHON_VERSION := 3.10
-PACKAGE_NAME := packagestarter
-PACKAGE_VERSION := $$(git tag --sort=-version:refname | head -n1 | tr -d 'v' 2>/dev/null || echo "0")
 VENV_DIR := .venv
 POETRY_BIN := $(VENV_DIR)/bin/poetry
 AUTHOR_NAME := $(shell git config user.name)
 AUTHOR_EMAIL := $(shell git config user.email)
+
+PACKAGE_NAME := packagestarter
+PACKAGE_VERSION := $(if $(shell git tag | tail -n 1),$(shell git tag | tail -n 1 | cut -c 2-),0)
 
 # Define phony targets
 .PHONY: help install install-deps test lint format build install-local uninstall-local clean \
@@ -22,7 +23,11 @@ help:
 	@echo "  \033[32mmake install-local\033[0m            Install the package locally using Poetry."
 	@echo "  \033[32mmake uninstall-local\033[0m          Uninstall the package locally using Poetry."
 	@echo "  \033[32mmake clean\033[0m                    Remove virtual environment and build artifacts."
-	@echo "  \033[32mmake generate-pyproject\033[0m       Generate pyproject.toml."
+	@echo "  \033[32mmake github-actions\033[0m           Run GitHub Actions workflow locally."
+	@echo "  \033[32mmake docker-setup\033[0m             Set up local Docker environment."
+	@echo "  \033[32mmake security-scan\033[0m            Scan for security vulnerabilities using trivy."
+	@echo "  \033[32mmake release\033[0m                  Release the package to the official PyPI registry."
+	@echo "  \033[32mmake test-release\033[0m             Release the package to the test PyPI registry."
 
 # Generate pyproject.toml
 generate-pyproject:
@@ -61,6 +66,12 @@ install:
 	$(VENV_DIR)/bin/python -m pip install jinja2 poetry flake8 black
 	@echo "\n\033[32mVirtual environment created and Poetry installed.\033[0m"
 	@echo "\033[1mTo activate the virtual environment, run:\033[0m\n\033[33msource $(VENV_DIR)/bin/activate\033[0m"
+
+	@echo "\n\033[1mInstalling Trivy...\033[0m"
+	@wget https://github.com/aquasecurity/trivy/releases/download/v0.50.4/trivy_0.50.4_Linux-64bit.deb && \
+	sudo dpkg -i trivy_0.50.4_Linux-64bit.deb && \
+	rm trivy_0.50.4_Linux-64bit.deb
+	@echo "\n\033[32mTrivy installed.\033[0m"
 
 # Install dependencies using Poetry
 install-deps:
@@ -128,3 +139,23 @@ clear-cache:
 # Run development tasks
 devrun: install install-deps lint format build
 	@echo "\n\033[32mDevelopment tasks completed.\033[0m"
+
+# Test release to test PyPI registry
+test-release: build test
+	@echo "\n\033[1mReleasing to Test PyPI registry...\033[0m"
+	@$(POETRY_BIN) publish --build -u __token__ -p $(PYPI_TEST_TOKEN)
+	@echo "\n\033[32mPackage released to Test PyPI registry.\033[0m"
+
+# Official release to PyPI registry
+release: build test
+	@echo "\n\033[1mReleasing to PyPI registry...\033[0m"
+	@$(POETRY_BIN) publish --build -u __token__ -p $(PYPI_TOKEN)
+	@echo "\n\033[32mPackage released to PyPI registry.\033[0m"
+
+# Scan for security vulnerabilities using Trivy
+security-scan:
+	@echo "\n\033[1mScanning for security vulnerabilities using Trivy...\033[0m"
+	@trivy filesystem .
+	@echo "\033[32mSecurity scan completed.\033[0m"
+
+
