@@ -54,5 +54,6 @@ jobs:
         run: |
           make security-scan
 
-      - name: Dummy Code Quality Check
-        run: echo "Simulating code quality check for feature branch."
+      - name: Code Quality Check
+        run: |
+          make quality-check
