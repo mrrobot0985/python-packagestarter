@@ -6,6 +6,9 @@ on:
       - develop
     tags:
       - 'v*-beta'
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
 
 jobs:
   test:

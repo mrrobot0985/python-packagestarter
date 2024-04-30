@@ -7,7 +7,10 @@ on:
     tags:
       - 'v*'
       - '!*beta*'
-
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      
 jobs:
   test:
     runs-on: ubuntu-latest
