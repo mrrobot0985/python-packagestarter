@@ -20,6 +20,7 @@ jobs:
 
   feature_build-and-test:
     runs-on: ubuntu-latest
+    needs: feature_workflow
     steps:
       - uses: actions/checkout@v4
       
