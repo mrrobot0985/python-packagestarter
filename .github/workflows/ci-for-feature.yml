@@ -16,9 +16,9 @@ jobs:
         with:
           python-version: '3.10'
       
-      - name: Install Poetry
+      - name: Prepare environment
         run: |
-          pip install poetry
+          make install 
 
       - name: Install dependencies
         run: |
@@ -26,19 +26,19 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run make test
+          make test
 
       - name: Lint code
         run: |
-          poetry run make lint
+          make lint
 
       - name: Build package
         run: |
-          poetry run make build
+          make build
 
       - name: Perform security scan
         run: |
-          poetry run make security-scan
+          make security-scan
 
       - name: Dummy Code Quality Check
         run: echo "Simulating code quality check for feature branch."
