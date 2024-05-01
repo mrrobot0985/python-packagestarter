@@ -18,12 +18,10 @@ jobs:
           
       - name: Print Workflow Details
         run: |
-          echo "Latest Tag: $LATEST_TAG"
           echo "Workflow Name: ${{ github.workflow }}"
           echo "Repository: ${{ github.repository }}"
           echo "Branch: ${{ github.ref }}"
           echo "Event Name: ${{ github.event_name }}"
-          echo "Commit Hash: ${{ github.sha }}"
           echo "Commit Hash: ${{ github.sha }}"
 
       - name: Set Future Version
@@ -38,13 +36,25 @@ jobs:
           
           if [[ "$BRANCH_PREFIX" == feature/* ]]; then
           # Bump minor
-          FUTURE_VERSION="v$MAJOR.$(($MINOR+1)).0"
+          FUTURE_TAG="v$MAJOR.$(($MINOR+1)).${{ github.run_number }}"
           elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
           # Bump patch
-          FUTURE_VERSION="v$MAJOR.$MINOR.$(($PATCH+${{ github.run_number }}))"
+          FUTURE_TAG="v$MAJOR.$MINOR.$(($PATCH+${{ github.run_number }}))"
           fi
           # Set Github ENV
+          echo "FUTURE_TAG=$FUTURE_TAG" >> $GITHUB_ENV
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+          echo "Future Tag: $FUTURE_TAG" > version.txt
+
+      - run: mkdir -p artifacts/${{ github.head_ref }}
+      - name: Upload Version File
+        uses: actions/upload-artifact@v4
+        with:
+          name: version
+          path: artifacts/${{ github.head_ref }}/version.txt
+          retention-days: 1
+          overwrite: true
 
       # - name: Install dependencies
       #   run: |
@@ -52,7 +62,7 @@ jobs:
 
       # - name: Run tests
       #   run: |
-      #     make test
+      #     make testxt
 
       # - name: Lint code
       #   run: |
