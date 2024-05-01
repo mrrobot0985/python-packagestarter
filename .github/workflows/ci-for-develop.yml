@@ -63,6 +63,8 @@ jobs:
           # Bump patch
           NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
           fi
+          # Set NEW_VERSION as an environment variable for the job
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Pull Request Job Execution
         run: |
@@ -125,7 +127,8 @@ jobs:
           # Bump patch
           NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
           fi
-        
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
       - name: Handle Merged Pull Request
         run: |
           echo "Pull Request was merged successfully."
@@ -159,6 +162,18 @@ jobs:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important: fetch all history for all tags and branches
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Get Version
+        run: |
+          BRANCH_PREFIX="${{ github.head_ref }}"
+          # Fetch the latest tag across all branches
+          LATEST_TAG=$(git tag | sort -V | tail -n1) >> $GITHUB_ENV
+
       - name: Handle Declined Pull Request
         run: |
           LATEST_TAG=$(git tag | sort -V | tail -n1)
