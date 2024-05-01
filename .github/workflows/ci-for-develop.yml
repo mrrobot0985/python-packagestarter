@@ -46,7 +46,7 @@ jobs:
       - name: Fetch all tags
         run: git fetch --tags
 
-      - name: Bump Version
+      - name: Set Version
         run: |
           BRANCH_PREFIX="${{ github.head_ref }}"
           # Fetch the latest tag across all branches
@@ -98,6 +98,13 @@ jobs:
         run: |
           make quality-check
 
+      - name: Create and Push Test Release Branch
+        run: |
+          # Create a new branch from the current state of develop
+          git checkout -b release/$NEW_VERSION-${{github.sha}} ${{ github.ref }}
+          # Push the new release branch to the repository
+          git push origin release/$NEW_VERSION-${{github.sha}}
+
   develop_pull_request_accepted:
     runs-on: ubuntu-latest
     needs: develop_pull_request_job
@@ -110,7 +117,7 @@ jobs:
       - name: Fetch all tags
         run: git fetch --tags
 
-      - name: Bump Version
+      - name: Set Version
         run: |
           BRANCH_PREFIX="${{ github.head_ref }}"
           # Fetch the latest tag across all branches
@@ -155,7 +162,14 @@ jobs:
       - name: Code Quality Check
         run: |
           make quality-check
-      
+
+      - name: Create and Push Release Branch
+        run: |
+          # Create a new branch from the current state of develop
+          git checkout -b release/$NEW_VERSION ${{ github.ref }}
+          # Push the new release branch to the repository
+          git push origin release/$NEW_VERSION
+
   develop_pull_request_declined:
     runs-on: ubuntu-latest
     needs: develop_pull_request_job
