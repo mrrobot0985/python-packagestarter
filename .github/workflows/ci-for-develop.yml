@@ -8,6 +8,7 @@ on:
     types: [opened, synchronize, closed]
     branches:
       - develop
+  workflow_dispatch:
 
 jobs:
   develop_workflow:
