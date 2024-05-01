@@ -14,40 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+          
       - name: Print Workflow Details
         run: |
+          echo "Latest Tag: $LATEST_TAG"
           echo "Workflow Name: ${{ github.workflow }}"
           echo "Repository: ${{ github.repository }}"
           echo "Branch: ${{ github.ref }}"
           echo "Event Name: ${{ github.event_name }}"
           echo "Commit Hash: ${{ github.sha }}"
+          echo "Commit Hash: ${{ github.sha }}"
 
-      - name: Install dependencies
-        run: |
-          make install
-
-      - name: Run tests
-        run: |
-          make test
-
-      - name: Lint code
-        run: |
-          make lint
-
-  develop_pull_request_job:
-    needs: develop_workflow
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Important: fetch all history for all tags and branches
-          token: ${{ secrets.PAT_TOKEN }}
-          
-      - name: Fetch all tags
-        run: git fetch --tags
-
-      - name: Set Version
+      - name: Set Future Version
         run: |
           BRANCH_PREFIX="${{ github.head_ref }}"
           # Fetch the latest tag across all branches
@@ -59,146 +37,191 @@ jobs:
           
           if [[ "$BRANCH_PREFIX" == feature/* ]]; then
           # Bump minor
-          NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
+          FUTURE_VERSION="v$MAJOR.$(($MINOR+1)).0"
           elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
           # Bump patch
-          NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
+          FUTURE_VERSION="v$MAJOR.$MINOR.$(($PATCH+${{ github.run_number }}))"
           fi
-          # Set NEW_VERSION as an environment variable for the job
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          # Set Github ENV
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
-      - name: Pull Request Job Execution
-        run: |
-          echo "Running additional checks for PR to develop branch"
-          echo "PR Title: ${{ github.event.pull_request.title }}"
-          echo "PR Body: ${{ github.event.pull_request.body }}"
-          echo "PR Version: $NEW_VERSION"
+      # - name: Install dependencies
+      #   run: |
+      #     make install
+
+      # - name: Run tests
+      #   run: |
+      #     make test
+
+      # - name: Lint code
+      #   run: |
+      #     make lint
+
+  # develop_pull_request_job:
+  #   needs: develop_workflow
+  #   runs-on: ubuntu-latest
+  #   if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0  # Important: fetch all history for all tags and branches
+  #         token: ${{ secrets.PAT_TOKEN }}
           
-      - name: Install dependencies
-        run: |
-          make install
+  #     - name: Fetch all tags
+  #       run: git fetch --tags
 
-      - name: Run tests
-        run: |
-          make test
-
-      - name: Set User Config
-        run: |
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --global user.name "${{ github.actor }}"
-
-      - name: Build package
-        run: |
-          make build
-
-      - name: Perform security scan
-        run: |
-          make security-scan
-
-      - name: Code Quality Check
-        run: |
-          make quality-check
-
-      - name: Create and Push Test Release Branch
-        run: |
-          # Fetch all branch data, important if you're using a branch other than the default branch
-          git fetch --all
+  #     - name: Set Version
+  #       run: |
+  #         BRANCH_PREFIX="${{ github.head_ref }}"
+  #         # Fetch the latest tag across all branches
+  #         LATEST_TAG=$(git tag | sort -V | tail -n1)
+  #         # Assuming the tag is in the format vMAJOR.MINOR.PATCH
+  #         MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | cut -dv -f2)
+  #         MINOR=$(echo $LATEST_TAG | cut -d. -f2)
+  #         PATCH=$(echo $LATEST_TAG | cut -d. -f3)
           
-          # Checkout to the base branch (e.g., 'main' or 'develop')
-          git checkout ${{ github.base_ref }}  # Or manually specify your base branch, like 'main'
+  #         if [[ "$BRANCH_PREFIX" == feature/* ]]; then
+  #         # Bump minor
+  #         NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
+  #         elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
+  #         # Bump patch
+  #         NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
+  #         fi
+  #         # Set NEW_VERSION as an environment variable for the job
+  #         echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+  #     - name: Pull Request Job Execution
+  #       run: |
+  #         echo "Running additional checks for PR to develop branch"
+  #         echo "PR Title: ${{ github.event.pull_request.title }}"
+  #         echo "PR Body: ${{ github.event.pull_request.body }}"
+  #         echo "PR Version: $NEW_VERSION"
           
-          # Create a new release branch from here
-          git checkout -b release/$NEW_VERSION-${{ github.sha }}
+  #     - name: Install dependencies
+  #       run: |
+  #         make install
+
+  #     - name: Run tests
+  #       run: |
+  #         make test
+
+  #     - name: Set User Config
+  #       run: |
+  #         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+  #         git config --global user.name "${{ github.actor }}"
+
+  #     - name: Build package
+  #       run: |
+  #         make build
+
+  #     - name: Perform security scan
+  #       run: |
+  #         make security-scan
+
+  #     - name: Code Quality Check
+  #       run: |
+  #         make quality-check
+
+  #     - name: Create and Push Test Release Branch
+  #       run: |
+  #         # Fetch all branch data, important if you're using a branch other than the default branch
+  #         git fetch --all
           
-          # Push the new release branch to the repository
-          git push origin release/$NEW_VERSION-${{ github.sha }}
-
-  develop_pull_request_accepted:
-    runs-on: ubuntu-latest
-    needs: develop_pull_request_job
-    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Important: fetch all history for all tags and branches
-
-      - name: Fetch all tags
-        run: git fetch --tags
-
-      - name: Set Version
-        run: |
-          BRANCH_PREFIX="${{ github.head_ref }}"
-          # Fetch the latest tag across all branches
-          LATEST_TAG=$(git tag | sort -V | tail -n1)
-          # Assuming the tag is in the format vMAJOR.MINOR.PATCH
-          MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | cut -dv -f2)
-          MINOR=$(echo $LATEST_TAG | cut -d. -f2)
-          PATCH=$(echo $LATEST_TAG | cut -d. -f3)
+  #         # Checkout to the base branch (e.g., 'main' or 'develop')
+  #         git checkout ${{ github.base_ref }}  # Or manually specify your base branch, like 'main'
           
-          if [[ "$BRANCH_PREFIX" == feature/* ]]; then
-          # Bump minor
-          NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
-          elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
-          # Bump patch
-          NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
-          fi
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+  #         # Create a new release branch from here
+  #         git checkout -b release/$NEW_VERSION-${{ github.sha }}
+          
+  #         # Push the new release branch to the repository
+  #         git push origin release/$NEW_VERSION-${{ github.sha }}
 
-      - name: Handle Merged Pull Request
-        run: |
-          echo "Pull Request was merged successfully."
-          echo "Merged PR Title: ${{ github.event.pull_request.title }}"
-          echo "New version: $NEW_VERSION"
+  # develop_pull_request_accepted:
+  #   runs-on: ubuntu-latest
+  #   needs: develop_pull_request_job
+  #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0  # Important: fetch all history for all tags and branches
 
-      - name: Install dependencies
-        run: |
-          make install
+  #     - name: Fetch all tags
+  #       run: git fetch --tags
 
-      - name: Set User Config
-        run: |
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --global user.name "${{ github.actor }}"
+  #     - name: Set Version
+  #       run: |
+  #         BRANCH_PREFIX="${{ github.head_ref }}"
+  #         # Fetch the latest tag across all branches
+  #         LATEST_TAG=$(git tag | sort -V | tail -n1)
+  #         # Assuming the tag is in the format vMAJOR.MINOR.PATCH
+  #         MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | cut -dv -f2)
+  #         MINOR=$(echo $LATEST_TAG | cut -d. -f2)
+  #         PATCH=$(echo $LATEST_TAG | cut -d. -f3)
+          
+  #         if [[ "$BRANCH_PREFIX" == feature/* ]]; then
+  #         # Bump minor
+  #         NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
+  #         elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
+  #         # Bump patch
+  #         NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))-build${{ github.run_number }}"
+  #         fi
+  #         echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Build package
-        run: |
-          make build
+  #     - name: Handle Merged Pull Request
+  #       run: |
+  #         echo "Pull Request was merged successfully."
+  #         echo "Merged PR Title: ${{ github.event.pull_request.title }}"
+  #         echo "New version: $NEW_VERSION"
 
-      - name: Perform security scan
-        run: |
-          make security-scan
+  #     - name: Install dependencies
+  #       run: |
+  #         make install
 
-      - name: Code Quality Check
-        run: |
-          make quality-check
+  #     - name: Set User Config
+  #       run: |
+  #         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+  #         git config --global user.name "${{ github.actor }}"
 
-      - name: Create and Push Release Branch
-        run: |
-          # Create a new branch from the current state of develop
-          git checkout -b release/$NEW_VERSION ${{ github.ref }}
-          # Push the new release branch to the repository
-          git push origin release/$NEW_VERSION
+  #     - name: Build package
+  #       run: |
+  #         make build
 
-  develop_pull_request_declined:
-    runs-on: ubuntu-latest
-    needs: develop_pull_request_job
-    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Important: fetch all history for all tags and branches
+  #     - name: Perform security scan
+  #       run: |
+  #         make security-scan
 
-      - name: Fetch all tags
-        run: git fetch --tags
+  #     - name: Code Quality Check
+  #       run: |
+  #         make quality-check
 
-      - name: Get Version
-        run: |
-          BRANCH_PREFIX="${{ github.head_ref }}"
-          # Fetch the latest tag across all branches
-          LATEST_TAG=$(git tag | sort -V | tail -n1) >> $GITHUB_ENV
+  #     - name: Create and Push Release Branch
+  #       run: |
+  #         # Create a new branch from the current state of develop
+  #         git checkout -b release/$NEW_VERSION ${{ github.ref }}
+  #         # Push the new release branch to the repository
+  #         git push origin release/$NEW_VERSION
 
-      - name: Handle Declined Pull Request
-        run: |
-          LATEST_TAG=$(git tag | sort -V | tail -n1)
-          echo "Pull Request was closed without merging."
-          echo "Declined PR Title: ${{ github.event.pull_request.title }}"
-          echo "Sticking with version: $LATEST_TAG"
+  # develop_pull_request_declined:
+  #   runs-on: ubuntu-latest
+  #   needs: develop_pull_request_job
+  #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0  # Important: fetch all history for all tags and branches
+
+  #     - name: Fetch all tags
+  #       run: git fetch --tags
+
+  #     - name: Get Version
+  #       run: |
+  #         BRANCH_PREFIX="${{ github.head_ref }}"
+  #         # Fetch the latest tag across all branches
+  #         LATEST_TAG=$(git tag | sort -V | tail -n1) >> $GITHUB_ENV
+
+  #     - name: Handle Declined Pull Request
+  #       run: |
+  #         LATEST_TAG=$(git tag | sort -V | tail -n1)
+  #         echo "Pull Request was closed without merging."
+  #         echo "Declined PR Title: ${{ github.event.pull_request.title }}"
+  #         echo "Sticking with version: $LATEST_TAG"
