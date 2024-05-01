@@ -40,32 +40,37 @@ jobs:
     if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Pull Request Job Execution
-        run: |
-          echo "Running additional checks for PR to develop branch"
-          echo "PR Title: ${{ github.event.pull_request.title }}"
-          echo "PR Body: ${{ github.event.pull_request.body }}"
+        with:
+          fetch-depth: 0  # Important: fetch all history for all tags and branches
+
+      - name: Fetch all tags
+        run: git fetch --tags
 
       - name: Bump Version
         run: |
           BRANCH_PREFIX="${{ github.head_ref }}"
           # Fetch the latest tag across all branches
           LATEST_TAG=$(git tag | sort -V | tail -n1)
-          echo "Latest tag: $LATEST_TAG"
           # Assuming the tag is in the format vMAJOR.MINOR.PATCH
           MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | cut -dv -f2)
           MINOR=$(echo $LATEST_TAG | cut -d. -f2)
           PATCH=$(echo $LATEST_TAG | cut -d. -f3)
           
           if [[ "$BRANCH_PREFIX" == feature/* ]]; then
-            # Bump minor
-            NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
+          # Bump minor
+          NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
           elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
-            # Bump patch
-            NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
+          # Bump patch
+          NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
           fi
-          echo "(Potential) New version: $NEW_VERSION"
 
+      - name: Pull Request Job Execution
+        run: |
+          echo "Running additional checks for PR to develop branch"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Body: ${{ github.event.pull_request.body }}"
+          echo "PR Version: $NEW_VERSION"
+          
       - name: Install dependencies
         run: |
           make install
@@ -102,31 +107,30 @@ jobs:
 
       - name: Fetch all tags
         run: git fetch --tags
-      
-      - name: Handle Merged Pull Request
-        run: |
-          echo "Pull Request was merged successfully."
-          echo "Merged PR Title: ${{ github.event.pull_request.title }}"
 
       - name: Bump Version
         run: |
           BRANCH_PREFIX="${{ github.head_ref }}"
           # Fetch the latest tag across all branches
           LATEST_TAG=$(git tag | sort -V | tail -n1)
-          echo "Latest tag: $LATEST_TAG"
           # Assuming the tag is in the format vMAJOR.MINOR.PATCH
           MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | cut -dv -f2)
           MINOR=$(echo $LATEST_TAG | cut -d. -f2)
           PATCH=$(echo $LATEST_TAG | cut -d. -f3)
           
           if [[ "$BRANCH_PREFIX" == feature/* ]]; then
-            # Bump minor
-            NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
+          # Bump minor
+          NEW_VERSION="v$MAJOR.$(($MINOR+1)).0"
           elif [[ "$BRANCH_PREFIX" == bugfix/* || "$BRANCH_PREFIX" == hotfix/* ]]; then
-            # Bump patch
-            NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
+          # Bump patch
+          NEW_VERSION="v$MAJOR.$MINOR.$(($PATCH+1))"
           fi
-          echo "(Potential) New version: $NEW_VERSION"
+        
+      - name: Handle Merged Pull Request
+        run: |
+          echo "Pull Request was merged successfully."
+          echo "Merged PR Title: ${{ github.event.pull_request.title }}"
+          echo "New version: $NEW_VERSION"
 
       - name: Install dependencies
         run: |
