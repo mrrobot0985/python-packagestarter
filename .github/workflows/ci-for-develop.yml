@@ -46,8 +46,9 @@ jobs:
           # Set Github ENV
           echo "FUTURE_TAG=$FUTURE_TAG" >> $GITHUB_ENV
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-
+          
           echo "$FUTURE_TAG" > artifacts/${{ github.head_ref }}/version.txt
+          echo "$FUTURE_TAG"
 
       - name: Upload Version File
         uses: actions/upload-artifact@v4
