@@ -51,7 +51,7 @@ jobs:
       - name: Upload Version File
         uses: actions/upload-artifact@v4
         with:
-          name: version
+          name: version.txt
           path: artifacts/${{ github.head_ref }}/version.txt
           retention-days: 1
           overwrite: true
