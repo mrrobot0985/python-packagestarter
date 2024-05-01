@@ -100,10 +100,17 @@ jobs:
 
       - name: Create and Push Test Release Branch
         run: |
-          # Create a new branch from the current state of develop
-          git checkout -b release/$NEW_VERSION-${{github.sha}} ${{ github.ref }}
+          # Fetch all branch data, important if you're using a branch other than the default branch
+          git fetch --all
+          
+          # Checkout to the base branch (e.g., 'main' or 'develop')
+          git checkout ${{ github.base_ref }}  # Or manually specify your base branch, like 'main'
+          
+          # Create a new release branch from here
+          git checkout -b release/$NEW_VERSION-${{ github.sha }}
+          
           # Push the new release branch to the repository
-          git push origin release/$NEW_VERSION-${{github.sha}}
+          git push origin release/$NEW_VERSION-${{ github.sha }}
 
   develop_pull_request_accepted:
     runs-on: ubuntu-latest
