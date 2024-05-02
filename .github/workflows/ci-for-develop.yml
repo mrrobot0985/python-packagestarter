@@ -40,10 +40,12 @@ jobs:
         run: |
           git fetch --tags
           LATEST_TAG=$(git tag | sort -V | tail -n1)
-      
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+          
       - name: Determine Branch Prefix
         run: |
           BRANCH_PREFIX=$(echo "${{ github.ref }}" | cut -d/ -f1)
+          echo "BRANCH_PREFIX=$BRANCH_PREFIX" >> $GITHUB_ENV
       
       - name: Determine Future Version
         run: |
