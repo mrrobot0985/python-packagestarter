@@ -35,7 +35,7 @@ jobs:
       FUTURE_VERSION: ""
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       
       - name: Determine Latest Tag
         run: |
@@ -48,7 +48,8 @@ jobs:
           BRANCH_PREFIX=$(echo "${{ github.event.pull_request.head.ref }}" | cut -d'/' -f1)
           echo "BRANCH_PREFIX=$BRANCH_PREFIX" >> $GITHUB_ENV
 
-      - run: mkdir -p artifacts/${{ github.head_ref }}
+      - name: Create Artifacts Folder
+        run: mkdir -p artifacts/${{ github.head_ref }}
 
       - name: Determine Future Version
         run: |
@@ -58,12 +59,14 @@ jobs:
             ;;
           develop)
             FUTURE_VERSION="v${LATEST_TAG}"
+            BUILD_LABEL=alpha
             ;;
           feature)
             MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
             MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
             PATCH=$((MINOR + 1))
             FUTURE_VERSION="v${MAJOR}.${MINOR}.patch${{ github.run_number }}"
+            BUILD_LABEL=omega
             ;;
           bugfix|hotfix)
             MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
@@ -71,11 +74,13 @@ jobs:
             PATCH=$(echo "${LATEST_TAG}" | cut -d. -f3 | cut -dp -f2)
             PATCH=$((PATCH + 1))
             FUTURE_VERSION="v${MAJOR}.${MINOR}.patch${{ github.run_number }}"
+            BUILD_LABEL=omega
             ;;
           release)
             MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
             MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
             FUTURE_VERSION="v${MAJOR}.${MINOR}.rc${{ github.run_number }}"
+            BUILD_LABEL=tc
             ;;
           *)
             echo "Unknown branch prefix"
