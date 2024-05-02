@@ -56,17 +56,18 @@ jobs:
           case "${BRANCH_PREFIX}" in
           main)
             FUTURE_VERSION="v${LATEST_TAG}"
+            BUILD_LABEL=release-${{ github.run_number }}
             ;;
           develop)
             FUTURE_VERSION="v${LATEST_TAG}"
-            BUILD_LABEL=alpha
+            BUILD_LABEL=alpha-${{ github.run_number }}
             ;;
           feature)
             MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
             MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
-            PATCH=$((MINOR + 1))
-            FUTURE_VERSION="v${MAJOR}.${MINOR}.patch${{ github.run_number }}"
-            BUILD_LABEL=omega
+            MINOR=$((MINOR + 1))
+            FUTURE_VERSION="v${MAJOR}.${MINOR}.${{ github.run_number }}"
+            BUILD_LABEL=beta-${{ github.run_number }}
             ;;
           bugfix|hotfix)
             MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
@@ -74,13 +75,13 @@ jobs:
             PATCH=$(echo "${LATEST_TAG}" | cut -d. -f3 | cut -dp -f2)
             PATCH=$((PATCH + 1))
             FUTURE_VERSION="v${MAJOR}.${MINOR}.patch${{ github.run_number }}"
-            BUILD_LABEL=omega
+            BUILD_LABEL=patch-${{ github.run_number }}
             ;;
           release)
             MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
             MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
             FUTURE_VERSION="v${MAJOR}.${MINOR}.rc${{ github.run_number }}"
-            BUILD_LABEL=tc
+            BUILD_LABEL=rc-${{ github.run_number }}
             ;;
           *)
             echo "Unknown branch prefix"
