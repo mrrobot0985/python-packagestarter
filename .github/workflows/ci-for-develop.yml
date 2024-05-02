@@ -39,7 +39,7 @@ jobs:
       - name: Determine Latest Tag
         run: |
           git fetch --tags
-          LATEST_TAG=$(git describe --tags --abbrev=0)
+          LATEST_TAG=$(git tag | sort -V | tail -n1)
       
       - name: Determine Branch Prefix
         run: |
