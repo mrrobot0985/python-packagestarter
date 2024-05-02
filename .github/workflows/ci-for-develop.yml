@@ -45,7 +45,7 @@ jobs:
           
       - name: Determine Branch Prefix
         run: |
-          BRANCH_PREFIX=$(echo "${{ github.event.pull_request.head.ref }}" | cut -d'/' -f1")
+          BRANCH_PREFIX=$(echo "${{ github.event.pull_request.head.ref }}" | cut -d'/' -f1)
           echo "BRANCH_PREFIX=$BRANCH_PREFIX" >> $GITHUB_ENV
 
       - name: Determine Future Version
