@@ -1,0 +1,58 @@
+name: CI for Featyre Branches
+
+on:
+  push:
+    branches:
+      - 'bugfix/**'
+
+jobs:
+  bugfix_workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print Workflow Details
+        run: |
+          echo "Workflow Name: ${{ github.workflow }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Event Name: ${{ github.event_name }}"
+          echo "Commit Hash: ${{ github.sha }}"
+
+  bugfix_build-and-test:
+    runs-on: ubuntu-latest
+    needs: bugfix_workflow
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          make install 
+
+      - name: Run tests
+        run: |
+          make test
+
+      - name: Lint code
+        run: |
+          make lint
+
+      - name: Set User Config
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+
+      - name: Build package
+        run: |
+          make build
+
+      - name: Perform security scan
+        run: |
+          make security-scan
+
+      - name: Dummy Code Quality Check
+        run: echo "Simulating code quality check for bugfix branch."
