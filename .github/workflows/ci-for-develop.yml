@@ -72,9 +72,12 @@ jobs:
           FUTURE_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
           echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
           echo "BRANCH_PREFIX=${BRANCH_PREFIX}" >> $GITHUB_ENV
-          echo "FUTURE_VERSION=${FUTURE_VERSION}" >> $GITHUB_ENV
+          echo "FUTURE_VERSION=$FUTURE_VERSION" >> $GITHUB_ENV
+
           echo "$FUTURE_VERSION" > artifacts/${{ github.head_ref }}/version.txt
+          cat artifacts/${{ github.head_ref }}/version.txt
           echo "$FUTURE_VERSION-$BRANCH_PREFIX$${{ github.run_number }}" > artifacts/${{ github.head_ref }}/build.txt
+          artifacts/${{ github.head_ref }}/build.txt
 
       - name: Upload Build Version File
         uses: actions/upload-artifact@v4
