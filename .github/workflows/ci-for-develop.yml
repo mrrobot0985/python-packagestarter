@@ -27,6 +27,7 @@ jobs:
 
   determine_version:
     name: Determine Future Version
+    needs: develop_workflow
     runs-on: ubuntu-latest
     env:
       LATEST_TAG: ""
@@ -44,7 +45,7 @@ jobs:
           
       - name: Determine Branch Prefix
         run: |
-          BRANCH_PREFIX=$(echo "${{ github.ref }}" | sed 's#refs/heads/##')
+          BRANCH_PREFIX=$(echo "${{ github.event.pull_request.head.ref }}")
           echo "BRANCH_PREFIX=$BRANCH_PREFIX" >> $GITHUB_ENV
 
       - name: Determine Future Version
