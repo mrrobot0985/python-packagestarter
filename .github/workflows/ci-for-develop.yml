@@ -48,6 +48,8 @@ jobs:
           BRANCH_PREFIX=$(echo "${{ github.event.pull_request.head.ref }}" | cut -d'/' -f1)
           echo "BRANCH_PREFIX=$BRANCH_PREFIX" >> $GITHUB_ENV
 
+      - run: mkdir -p artifacts/${{ github.head_ref }}
+
       - name: Determine Future Version
         run: |
           case "${BRANCH_PREFIX}" in
@@ -73,8 +75,6 @@ jobs:
           echo "FUTURE_VERSION=${FUTURE_VERSION}" >> $GITHUB_ENV
           echo "$FUTURE_VERSION" > artifacts/${{ github.head_ref }}/version.txt
           echo "$FUTURE_VERSION-$BRANCH_PREFIX$${{ github.run_number }}" > artifacts/${{ github.head_ref }}/build.txt
-
-      - run: mkdir -p artifacts/${{ github.head_ref }}
 
       - name: Upload Build Version File
         uses: actions/upload-artifact@v4
