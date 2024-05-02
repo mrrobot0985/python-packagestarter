@@ -92,7 +92,7 @@ jobs:
 
           echo "$FUTURE_VERSION" > artifacts/${{ github.head_ref }}/version.txt
           cat artifacts/${{ github.head_ref }}/version.txt
-          echo "${BRANCH_PREFIX}-build${{ github.run_number }}" > artifacts/${{ github.head_ref }}/build.txt
+          echo "${BUILD_LABEL}" > artifacts/${{ github.head_ref }}/build.txt
           cat artifacts/${{ github.head_ref }}/build.txt
 
       - name: Upload Build Version File
