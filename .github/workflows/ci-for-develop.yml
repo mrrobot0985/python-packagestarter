@@ -44,9 +44,9 @@ jobs:
           
       - name: Determine Branch Prefix
         run: |
-          BRANCH_PREFIX=$(echo "${{ github.ref }}" | cut -d/ -f1)
+          BRANCH_PREFIX=$(echo "${{ github.ref }}" | sed 's#refs/heads/##')
           echo "BRANCH_PREFIX=$BRANCH_PREFIX" >> $GITHUB_ENV
-      
+
       - name: Determine Future Version
         run: |
           case "${BRANCH_PREFIX}" in
