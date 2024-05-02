@@ -55,38 +55,38 @@ jobs:
         run: |
           case "${BRANCH_PREFIX}" in
           main)
-            FUTURE_VERSION="v${LATEST_TAG}"
-            BUILD_LABEL=release-${{ github.run_number }}
-            ;;
+              FUTURE_VERSION="v${LATEST_TAG}"
+              BUILD_LABEL=release-${{ github.run_number }}
+              ;;
           develop)
-            FUTURE_VERSION="v${LATEST_TAG}"
-            BUILD_LABEL=alpha-${{ github.run_number }}
-            ;;
+              FUTURE_VERSION="v${LATEST_TAG}"
+              BUILD_LABEL=alpha-${{ github.run_number }}
+              ;;
           feature)
-            MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
-            MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
-            MINOR=$((MINOR + 1))
-            FUTURE_VERSION="v${MAJOR}.${MINOR}.${{ github.run_number }}"
-            BUILD_LABEL=beta-${{ github.run_number }}
-            ;;
+              MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
+              MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
+              MINOR=$((MINOR + 1))
+              FUTURE_VERSION="v${MAJOR}.${MINOR}.${{ github.run_number }}"
+              BUILD_LABEL=beta-${{ github.run_number }}
+              ;;
           bugfix|hotfix)
-            MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
-            MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
-            PATCH=$(echo "${LATEST_TAG}" | cut -d. -f3 | cut -dp -f2)
-            PATCH=$((PATCH + 1))
-            FUTURE_VERSION="v${MAJOR}.${MINOR}.patch${{ github.run_number }}"
-            BUILD_LABEL=patch-${{ github.run_number }}
-            ;;
+              MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
+              MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
+              PATCH=$(echo "${LATEST_TAG}" | cut -d. -f3 | cut -dp -f2)
+              PATCH=$((PATCH + 1))
+              FUTURE_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+              BUILD_LABEL=patch-${{ github.run_number }}
+              ;;
           release)
-            MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
-            MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
-            FUTURE_VERSION="v${MAJOR}.${MINOR}.rc${{ github.run_number }}"
-            BUILD_LABEL=rc-${{ github.run_number }}
-            ;;
+              MAJOR=$(echo "${LATEST_TAG}" | cut -d. -f1 | cut -dv -f2)
+              MINOR=$(echo "${LATEST_TAG}" | cut -d. -f2)
+              FUTURE_VERSION="v${MAJOR}.${MINOR}.rc${{ github.run_number }}"
+              BUILD_LABEL=rc-${{ github.run_number }}
+              ;;
           *)
-            echo "Unknown branch prefix"
-            exit 1
-            ;;
+              echo "Unknown branch prefix"
+              exit 1
+              ;;
           esac
           FUTURE_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
 
@@ -94,6 +94,8 @@ jobs:
           cat artifacts/${{ github.head_ref }}/version.txt
           echo "${BUILD_LABEL}" > artifacts/${{ github.head_ref }}/build.txt
           cat artifacts/${{ github.head_ref }}/build.txt
+
+          echo "TRY: ${{ github.run_id }}.${{ github.run_number }}.${{ github.run_attempt }}"
 
       - name: Upload Build Version File
         uses: actions/upload-artifact@v4
